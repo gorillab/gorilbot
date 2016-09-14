@@ -1,0 +1,21 @@
+{
+    "name": "gorilbot",
+    "version": "0.0.1",
+    "description": "A messenger bot.",
+    "main": "app.js",
+    "scripts": {
+        "start": "node app.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/gorillab/gorilbot.git"
+    },
+    "author": "Gorillab",
+    "license": "MIT",
+    "dependencies": {
+        "body-parser": "^1.15.0",
+        "config": "^1.20.4",
+        "express": "^4.13.4",
+        "request": "^2.72.0"
+    }
+}
