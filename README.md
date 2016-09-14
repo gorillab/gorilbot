@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/gorillab/gorilbot/master/logo.png"/>
+# gorilbot
 
 [![Build Status](https://travis-ci.org/gorillab/gorilbot.svg?branch=master)](https://travis-ci.org/gorillab/gorilbot)
 
