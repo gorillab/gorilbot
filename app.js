@@ -16,7 +16,8 @@ const
     crypto = require('crypto'),
     express = require('express'),
     https = require('https'),
-    request = require('request');
+    request = require('request'),
+    async = require('async');
 
 var app = express();
 app.set('port', process.env.PORT || 9000);
@@ -62,7 +63,6 @@ app.get('/webhook', function(req, res) {
         res.sendStatus(403);
     }
 });
-
 
 /*
  * All callbacks for Messenger are POST-ed. They will be sent to the same
@@ -306,7 +306,6 @@ function receivedMessage(event) {
     }
 }
 
-
 /*
  * Delivery Confirmation Event
  *
@@ -332,7 +331,6 @@ function receivedDeliveryConfirmation(event) {
     console.log("All message before %d were delivered.", watermark);
 }
 
-
 /*
  * Postback Event
  *
@@ -352,9 +350,36 @@ function receivedPostback(event) {
     console.log("Received postback for user %d and page %d with payload '%s' " +
         "at %d", senderID, recipientID, payload, timeOfPostback);
 
+    var message = {};
+    switch (payload) {
+        case 'COMMAND:HI':
+            message.text = 'Hey Phat! Select what you are looking for:';
+            break;
+        case 'COMMAND:HELP':
+            message.text = 'Please select what you are looking for:';
+            message.quick_replies = [{
+                "content_type": "text",
+                "title": "About Gorillab",
+                "payload": "COMMAND:QUERY:ABOUT"
+            }, {
+                "content_type": "text",
+                "title": "Our Services",
+                "payload": "COMMAND:QUERY:SERVICES"
+            }, {
+                "content_type": "text",
+                "title": "Portfolio",
+                "payload": "COMMAND:QUERY:PORTFOLIO"
+            }, {
+                "content_type": "text",
+                "title": "Contact Info",
+                "payload": "COMMAND:QUERY:CONTACT"
+            }]
+            break;
+    }
+
     // When a postback is called, we'll send a message back to the sender to 
     // let them know it was successful
-    sendTextMessage(senderID, "Postback called");
+    sendQuickReply(senderID, message);
 }
 
 /*
@@ -680,12 +705,12 @@ function sendReceiptMessage(recipientId) {
  * Send a message with Quick Reply buttons.
  *
  */
-function sendQuickReply(recipientId) {
+function sendQuickReply(recipientId, message) {
     var messageData = {
         recipient: {
             id: recipientId
         },
-        message: {
+        message: message || {
             text: "What's your favorite movie genre?",
             metadata: "DEVELOPER_DEFINED_METADATA",
             quick_replies: [{
@@ -818,6 +843,20 @@ function callSendAPI(messageData) {
 // Start server
 // Webhooks must be available via SSL with a certificate signed by a valid 
 // certificate authority.
+app.use(require('express-status-monitor')({
+    title: 'Server Status', // Default title
+    path: '/status',
+    spans: [{
+        interval: 1, // Every second
+        retention: 60 // Keep 60 datapoints in memory
+    }, {
+        interval: 5, // Every 5 seconds
+        retention: 60
+    }, {
+        interval: 15, // Every 15 seconds
+        retention: 60
+    }]
+}));
 app.listen(app.get('port'), function() {
     console.log('Gorilbot is running on port', app.get('port'));
 });
