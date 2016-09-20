@@ -8,3 +8,6 @@ node_js:
   - 4.0
   - 0.12
   - 0.10
+
+notifications:
+  slack: gorillab:ZewjPbNTupIFW4a95tIPPMdb
